@@ -23,6 +23,7 @@ export const SETTINGS = {
   chase: 'chase',
   chaseInterval: 'chase-interval',
   chaseSpeed: 'chase-speed',
+  tintStrength: 'tint-strength',
   panelOpacity: 'panel-opacity',
 } as const;
 
@@ -35,6 +36,7 @@ export async function readOptions(plugin: RNPlugin): Promise<KoneOptions> {
     chase: await plugin.settings.getSetting<boolean>(SETTINGS.chase),
     chaseInterval: await plugin.settings.getSetting<number>(SETTINGS.chaseInterval),
     chaseSpeed: await plugin.settings.getSetting<ChaseSpeed>(SETTINGS.chaseSpeed),
+    tintStrength: await plugin.settings.getSetting<number>(SETTINGS.tintStrength),
     panelOpacity: await plugin.settings.getSetting<number>(SETTINGS.panelOpacity),
   });
 }

@@ -37,21 +37,27 @@ html::before {
 
   background-repeat: no-repeat;
 
-  /* Painted front to back: the companion sits in front of the hero. */
-  background-image: var(--kone-slot-companion), var(--kone-slot-hero), var(--kone-slot-left),
-    var(--kone-slot-top);
-  background-position: right 14vw bottom 0.5vh, right 1vw bottom 1vh, left 2vw bottom 2vh,
-    right 4vw top 3vh;
-  background-size: 10vw auto, 15vw auto, 12vw auto, 9vw auto;
+  /*
+   * Three corners, four cats. Painted front to back, so the companion sits in
+   * front of the hero.
+   *
+   * Top left is a shelf and bottom left is a bed. Both are anchored flush to
+   * their edges, because a shelf floating a few percent off the left edge stops
+   * looking fixed to anything.
+   */
+  background-image: var(--kone-slot-companion), var(--kone-slot-hero), var(--kone-scene-bed),
+    var(--kone-scene-shelf);
+  background-position: right 13vw bottom 0.5vh, right 1vw bottom 1vh, left 0 bottom 1vh, left 0 top 4vh;
+  background-size: 10vw auto, 15vw auto, 17vw auto, 16vw auto;
 }
 
 /*
- * Narrow windows keep the featured pair and drop the rest. Four cats on a half
- * width window crowds the text instead of framing it.
+ * Narrow windows keep one costumed cat and the bed, and drop the rest. Four
+ * pieces on a half width window crowds the text instead of framing it.
  */
 @media (max-width: 900px) {
   html::before {
-    background-size: 0 0, 22vw auto, 17vw auto, 0 0;
+    background-size: 0 0, 22vw auto, 24vw auto, 0 0;
   }
 }
 

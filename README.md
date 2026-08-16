@@ -21,13 +21,21 @@ Build it with `npm install && npm run build`.
 | Corner cats | Off, Subtle, Normal, Bold | Normal |
 | Costume | Shark, Bunny, Bread, Strawberry, No costume | Shark |
 | Panel opacity | 0 to 100 | 75 |
+| Tint strength | 0 to 200 | 100 |
 | Yarn chase | On, Off | **Off** |
 | Chase interval | 10 to 3600 seconds | 60 |
 | Chase speed | Amble, Trot, Dash | Trot |
 
-Costume picks the featured cat, in the larger bottom right slot. The other three
-corners take the remaining costumes, so the collage stays varied rather than
-showing four copies of the same cat.
+Tint strength is there for anyone who finds the pastels too pale. 100 is each
+shade as designed; higher deepens the ground, lower washes it toward neutral.
+Text colour does not move with it, so the range is capped at 200, which is where
+the contrast floor still holds on every shade.
+
+The corners hold a cat asleep on a shelf at the top left, a cat curled in its bed
+at the bottom left, and a costumed pair at the bottom right. Costume picks the
+featured cat of that pair; the other takes a different costume so the two are
+never identical. The shelf and bed cats are fixed scenes, since a cat asleep on a
+shelf belongs to that shelf.
 
 The chase is off by default. Motion that crosses the window is charming once and
 distracting afterwards, so you opt in. If your system asks for reduced motion it

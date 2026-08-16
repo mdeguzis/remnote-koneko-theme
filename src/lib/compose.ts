@@ -23,11 +23,20 @@
 import { ASSETS } from './assets.generated.ts';
 import { CSS } from './css.generated.ts';
 import { encodeSvg } from './encode.ts';
-import { ART_TOKENS, DEFAULT_SHADE, findShade, triplet, type Palette } from './palettes.ts';
+import {
+  ART_TOKENS,
+  DEFAULT_SHADE,
+  findShade,
+  triplet,
+  withTintStrength,
+  type Palette,
+} from './palettes.ts';
 import {
   CAT_OPACITY,
   CAT_SLOTS,
   CHASE_DURATION,
+  GAIT_DURATION,
+  SCENES,
   castSlots,
   normalizeOptions,
   type KoneOptions,
@@ -98,6 +107,18 @@ function artVars(palette: Palette, options: KoneOptions): string {
 
     const value = options.cats === 'off' ? 'none' : artUrl(template, palette, name);
     lines.push(`  --kone-slot-${slot}: ${value};`);
+  }
+
+  // The corner scenes. Fixed art rather than something the costume setting
+  // casts: a cat asleep on a shelf belongs to that shelf.
+  for (const scene of SCENES) {
+    const name = `scene-${scene}`;
+    const template = ASSETS[name];
+
+    if (!template) throw new Error(`no artwork for scene "${name}"`);
+
+    const value = options.cats === 'off' ? 'none' : artUrl(template, palette, name);
+    lines.push(`  --kone-scene-${scene}: ${value};`);
   }
 
   for (const [name, template] of Object.entries(ASSETS)) {
@@ -174,6 +195,12 @@ export function compose(rawOptions: Partial<KoneOptions>): string {
     throw new Error(`no shade found for "${options.shade}" and no default available`);
   }
 
+  // Apply the tint strength ONCE, here, so every later reference to the
+  // palette sees the adjusted colours. Applying it at each use site would be
+  // four chances to forget one and ship a page whose surfaces disagree.
+  const light = withTintStrength(shade.light, options.tintStrength);
+  const dark = withTintStrength(shade.dark, options.tintStrength);
+
   const duration = CHASE_DURATION[options.chaseSpeed];
 
   // The gap between crossings is made by animating for the whole interval and
@@ -186,15 +213,16 @@ export function compose(rawOptions: Partial<KoneOptions>): string {
   parts.push(`/* Koneko for RemNote - shade: ${shade.name} */`);
 
   parts.push(`:root {
-${artVars(shade.light, options)}
+${artVars(light, options)}
 
-${paletteVars(shade.light)}
+${paletteVars(light)}
 
   --kone-cat-opacity: ${CAT_OPACITY[options.cats]};
   --kone-panel-opacity: ${(options.panelOpacity / 100).toFixed(3)};
   --kone-panel-blur: ${options.panelOpacity === 0 ? 'none' : 'blur(8px) saturate(115%)'};
   --kone-chase-duration: ${options.chaseInterval}s;
   --kone-chase-cross: ${(crossFraction * 100).toFixed(2)}%;
+  --kone-gait-duration: ${GAIT_DURATION[options.chaseSpeed]}s;
 }`);
 
   // Dark mode has to land on the ROOT element, not on whichever element RemNote
@@ -205,9 +233,9 @@ ${paletteVars(shade.light)}
   // element cannot reach `html::before`, where the artwork is drawn.
   parts.push(`html.dark,
 html:has(.dark) {
-${artVars(shade.dark, options)}
+${artVars(dark, options)}
 
-${paletteVars(shade.dark)}
+${paletteVars(dark)}
 }`);
 
   parts.push(CSS.base);

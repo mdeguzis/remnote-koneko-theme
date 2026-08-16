@@ -28,6 +28,14 @@ export interface KoneOptions {
    * content sits on the artwork; 100 is solid.
    */
   panelOpacity: number;
+  /**
+   * How strongly the shade colours the page, as a percentage.
+   *
+   * 100 is the palette as authored. Lower washes it toward neutral, higher
+   * deepens it. Pastels read as too pale to some people and that is a matter of
+   * taste rather than a bug, so it is a knob instead of a redesign.
+   */
+  tintStrength: number;
 }
 
 export const DEFAULT_OPTIONS: KoneOptions = {
@@ -38,6 +46,7 @@ export const DEFAULT_OPTIONS: KoneOptions = {
   chaseInterval: 60,
   chaseSpeed: 'trot',
   panelOpacity: 75,
+  tintStrength: 100,
 };
 
 /** Opacity of the cat layer for each presence setting. */
@@ -55,42 +64,70 @@ export const CHASE_DURATION: Record<ChaseSpeed, number> = {
   dash: 5,
 };
 
+/**
+ * Seconds for one full stride, per speed.
+ *
+ * Deliberately not derived from the crossing time. A cat that takes longer to
+ * cross should take MORE strides, not slower ones, so this is its own scale: a
+ * dash flickers, an amble plods, and neither looks like slow motion.
+ */
+export const GAIT_DURATION: Record<ChaseSpeed, number> = {
+  amble: 0.44,
+  trot: 0.3,
+  dash: 0.18,
+};
+
 export const CAT_PRESENCE: CatPresence[] = ['off', 'subtle', 'normal', 'bold'];
 export const HOODS: Hood[] = ['shark', 'bunny', 'bread', 'strawberry', 'none'];
 
 /**
- * How many cats the collage places, and in what order they are cast.
+ * The costume slots: the pair in the bottom right corner.
  *
- * The chosen costume takes the hero slot and the rest are filled from the
- * remaining costumes, so the corners hold four different cats rather than four
- * copies of one. Slot names are placements; they carry no costume meaning.
+ * The chosen costume takes `hero` and `companion` gets a different one, so the
+ * pair is varied rather than two copies of the same cat. Slot names are
+ * placements; they carry no costume meaning, and the stylesheet decides where
+ * they land.
+ *
+ * The other two corners are SCENES, not costume slots. A cat asleep on a shelf
+ * belongs to that shelf, so putting a shark hood on it would be nonsense.
  */
-export const CAT_SLOTS = ['hero', 'companion', 'left', 'top'] as const;
+export const CAT_SLOTS = ['hero', 'companion'] as const;
 export type CatSlot = (typeof CAT_SLOTS)[number];
 
+/** The fixed corner scenes, drawn regardless of the costume setting. */
+export const SCENES = ['shelf', 'bed'] as const;
+export type Scene = (typeof SCENES)[number];
+
 /**
- * Cast the collage.
+ * Cast the costumed pair.
  *
- * `none` is excluded from the supporting slots because a plain cat next to a
+ * `none` is excluded from the companion slot because a plain cat next to a
  * costumed one reads as a missing costume rather than a deliberate choice. It
  * is still available as the hero, for anyone who wants no costumes at all.
  */
 export function castSlots(featured: Hood): Record<CatSlot, Hood> {
   const supporting = HOODS.filter((hood) => hood !== featured && hood !== 'none');
-  const cast = {} as Record<CatSlot, Hood>;
 
-  cast.hero = featured;
-  for (const [index, slot] of CAT_SLOTS.slice(1).entries()) {
-    cast[slot] = supporting[index % supporting.length] ?? featured;
-  }
-
-  return cast;
+  return {
+    hero: featured,
+    companion: supporting[0] ?? featured,
+  };
 }
 export const CHASE_SPEEDS: ChaseSpeed[] = ['amble', 'trot', 'dash'];
 
 /** The interval has to stay long enough that the crossing reads as an event. */
 export const CHASE_INTERVAL_MIN = 10;
 export const CHASE_INTERVAL_MAX = 3600;
+
+/**
+ * The tint range.
+ *
+ * Capped at 200 rather than left open. Deepening a light ground costs contrast
+ * against text that does not move with it, and the ceiling is set where the
+ * contrast tests still hold across every shade.
+ */
+export const TINT_MIN = 0;
+export const TINT_MAX = 200;
 
 /**
  * Clamp a number that came from a free text setting.
@@ -129,5 +166,6 @@ export function normalizeOptions(raw: Partial<KoneOptions> | null | undefined): 
     ),
     chaseSpeed: pick(input.chaseSpeed, CHASE_SPEEDS, DEFAULT_OPTIONS.chaseSpeed),
     panelOpacity: clampNumber(input.panelOpacity, DEFAULT_OPTIONS.panelOpacity, 0, 100),
+    tintStrength: clampNumber(input.tintStrength, DEFAULT_OPTIONS.tintStrength, TINT_MIN, TINT_MAX),
   };
 }

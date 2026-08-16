@@ -65,10 +65,39 @@ function runnerEar(bx1, by1, tx, ty, bx2, by2) {
  * Legs are drawn as a dark stroke with a lighter one over it, which gives an
  * outlined limb without a separate outline path.
  */
-export function makeRunnerSvg() {
+export function makeRunnerSvg({ phase = 'a' } = {}) {
   const leg = (d, outer, inner) =>
     `<path d="${d}" stroke="{{LINE}}" stroke-width="${outer}" stroke-linecap="round" fill="none"/>` +
     `<path d="${d}" stroke="{{FUR}}" stroke-width="${inner}" stroke-linecap="round" fill="none"/>`;
+
+  // Two poses, flipped against each other. In A the legs are extended, reaching
+  // front and back; in B they are gathered under the body. Alternating the two
+  // is a running cycle.
+  //
+  // It has to be TWO drawings because CSS cannot animate anything inside an SVG
+  // used as a background-image: the file is a separate document, and no
+  // stylesheet on the page reaches into it. The stylesheet flips between these
+  // as whole images instead, which is a discrete animation and therefore free.
+  //
+  // Diagonal pairs move together, the way a real cat's gait works. Moving both
+  // front legs together gives a rabbit hop, which reads as wrong even to
+  // someone not thinking about gaits.
+  const legs =
+    phase === 'a'
+      ? leg('M62,88 Q48,100 40,110', 16, 11) + // back, extended
+        leg('M128,86 Q146,98 154,108', 16, 11) + // front, reaching
+        leg('M84,90 Q78,104 74,114', 15, 10) +
+        leg('M112,90 Q120,104 126,114', 15, 10)
+      : leg('M62,88 Q60,102 58,112', 16, 11) + // back, gathered
+        leg('M128,86 Q132,100 134,110', 16, 11) + // front, tucked
+        // Kept apart on purpose. Gathered legs that land within a few pixels of
+        // each other merge into one blob at the size this runs at.
+        leg('M84,90 Q88,102 90,112', 15, 10) +
+        leg('M112,90 Q110,104 110,114', 15, 10);
+
+  // The body rides a little lower in the gathered pose, which is most of what
+  // makes the flip read as bounding rather than as a glitch.
+  const lift = phase === 'a' ? 0 : 4;
 
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 130" width="200" height="130">` +
@@ -78,10 +107,8 @@ export function makeRunnerSvg() {
     // Legs, drawn before the body so they tuck underneath it. Short and thick:
     // long thin ones read as a deer, and at 7vw on screen the difference
     // between four sticks and four legs is entirely the weight.
-    leg('M62,88 Q50,100 44,110', 16, 11) +
-    leg('M128,86 Q144,98 150,108', 16, 11) +
-    leg('M84,90 Q76,102 72,112', 15, 10) +
-    leg('M112,90 Q122,102 128,112', 15, 10) +
+    legs +
+    `<g transform="translate(0 ${lift})">` +
     // Body. Rounder than a true running cat, to stay a loaf in motion.
     `<ellipse cx="96" cy="70" rx="54" ry="36" fill="{{FUR}}" stroke="{{LINE}}" stroke-width="3.4"/>` +
     `<ellipse cx="114" cy="64" rx="24" ry="19" fill="{{TABBY}}" opacity="0.55"/>` +
@@ -97,6 +124,7 @@ export function makeRunnerSvg() {
     `<ellipse cx="163" cy="50" rx="6.5" ry="8" fill="{{DARK}}"/>` +
     `<circle cx="165" cy="46" r="2.4" fill="#ffffff" opacity="0.9"/>` +
     `<path d="M175,55 Q179,53 182,55 Q180,60 178,60 Q176,60 175,55 Z" fill="{{PINK}}"/>` +
+    `</g>` +
     `</svg>`
   );
 }

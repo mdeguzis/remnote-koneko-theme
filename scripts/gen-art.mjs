@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 import { makeCatSvg, HOOD_NAMES } from './lib/cat.mjs';
 import { makeYarnSvg, makeRunnerSvg } from './lib/chase.mjs';
+import { makeBedSvg, makeShelfSvg } from './lib/scenes.mjs';
 import { writeIfChanged } from './lib/write-if-changed.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,7 +25,11 @@ const OUT_DIR = path.join(ROOT, 'assets');
 
 const ASSETS = {
   'chase-yarn.svg': makeYarnSvg(),
-  'chase-runner.svg': makeRunnerSvg(),
+  // Two poses of the same cat, alternated by the stylesheet to animate the run.
+  'chase-runner.svg': makeRunnerSvg({ phase: 'a' }),
+  'chase-runner-b.svg': makeRunnerSvg({ phase: 'b' }),
+  'scene-bed.svg': makeBedSvg(),
+  'scene-shelf.svg': makeShelfSvg(),
 };
 
 for (const hood of HOOD_NAMES) {

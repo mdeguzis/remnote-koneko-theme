@@ -11,6 +11,7 @@ import {
   CHASE_SPEEDS,
   DEFAULT_OPTIONS,
   HOODS,
+  SCENES,
   castSlots,
   clampNumber,
   normalizeOptions,
@@ -49,22 +50,26 @@ test('composed css never contains undefined, NaN or an unfilled token', () => {
   }
 });
 
-test('every collage slot is filled, whatever the costume', () => {
+test('every collage slot and scene is filled, whatever the costume', () => {
   // The first version named the layers after costumes, so choosing a hood
-  // filled one corner and left the other three empty.
+  // filled one corner and left the others empty.
   for (const hood of HOODS) {
     const css = compose({ ...DEFAULT_OPTIONS, hood });
     for (const slot of CAT_SLOTS) {
       assert.match(css, new RegExp(`--kone-slot-${slot}: url\\(`), `${hood} left ${slot} empty`);
     }
+    for (const scene of SCENES) {
+      assert.match(css, new RegExp(`--kone-scene-${scene}: url\\(`), `${hood} left ${scene} empty`);
+    }
   }
 });
 
-test('the collage casts different cats, not four of the same', () => {
+test('the costumed pair is two different cats', () => {
   for (const hood of HOODS) {
     const cast = castSlots(hood);
     assert.equal(cast.hero, hood, 'the chosen costume should be the featured one');
-    assert.ok(new Set(Object.values(cast)).size >= 3, `${hood} produced a repetitive collage`);
+    assert.notEqual(cast.companion, cast.hero, `${hood} paired a cat with itself`);
+    assert.notEqual(cast.companion, 'none', 'a bare cat beside a costumed one reads as a bug');
   }
 });
 
@@ -73,6 +78,18 @@ test('turning the cats off inlines no artwork at all', () => {
   for (const slot of CAT_SLOTS) {
     assert.match(css, new RegExp(`--kone-slot-${slot}: none`));
   }
+  for (const scene of SCENES) {
+    assert.match(css, new RegExp(`--kone-scene-${scene}: none`));
+  }
+});
+
+test('the running cat has two poses to animate between', () => {
+  // CSS cannot reach inside an SVG background, so the gait is a discrete flip
+  // between two whole drawings. One of them missing means a cat that slides.
+  const css = compose({ ...DEFAULT_OPTIONS, chase: true });
+  assert.match(css, /--kone-chase-runner: url\(/);
+  assert.match(css, /--kone-chase-runner-b: url\(/);
+  assert.match(css, /--kone-gait-duration: [\d.]+s/);
 });
 
 test('both palettes are emitted, dark gated on the dark class', () => {

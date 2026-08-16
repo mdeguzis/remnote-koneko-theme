@@ -61,7 +61,22 @@ body::before {
   animation: kone-chase-yarn var(--kone-chase-duration) linear infinite;
 }
 
-/* The cat, trailing it. */
+/*
+ * The cat, trailing it.
+ *
+ * TWO animations on one element. The first moves it; the second flips its
+ * background between two drawings of the same cat, one with the legs extended
+ * and one with them gathered, which is the running cycle.
+ *
+ * It has to work this way because CSS cannot reach inside an SVG used as a
+ * background-image: that file is a separate document and no rule on this page
+ * applies to it. `background-image` is a discrete property, so it does not
+ * interpolate between the two, it swaps at each keyframe. That is exactly what
+ * a two frame animation needs, and it costs nothing to composite.
+ *
+ * The gait runs on its own short timer rather than a fraction of the crossing,
+ * so the legs keep a believable rate whether the cat ambles or dashes.
+ */
 body::after {
   width: 7.4vw;
   height: 4.8vw;
@@ -69,7 +84,18 @@ body::after {
   min-height: 38px;
   margin-bottom: 0.8vh;
   background-image: var(--kone-chase-runner);
-  animation: kone-chase-cat var(--kone-chase-duration) linear infinite;
+  animation:
+    kone-chase-cat var(--kone-chase-duration) linear infinite,
+    kone-chase-gait var(--kone-gait-duration) steps(1, end) infinite;
+}
+
+@keyframes kone-chase-gait {
+  0% {
+    background-image: var(--kone-chase-runner);
+  }
+  50% {
+    background-image: var(--kone-chase-runner-b);
+  }
 }
 
 /*
