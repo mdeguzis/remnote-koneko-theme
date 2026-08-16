@@ -1,0 +1,46 @@
+{
+  "private": true,
+  "name": "remnote-koneko-theme",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "description": "Soft pastel cat theme for RemNote. Costumed kittens in the corners, optional yarn chase, four shades.",
+  "scripts": {
+    "clean": "shx rm -rf build dist *.zip src/lib/assets.generated.ts src/lib/css.generated.ts",
+    "art": "node scripts/gen-art.mjs",
+    "sources": "node scripts/build-sources.mjs",
+    "predev": "node scripts/free-port.mjs",
+    "dev": "npm run sources && cross-env NODE_ENV=development webpack serve --color --progress",
+    "preview": "npm run sources && node scripts/preview.mjs",
+    "css:copy": "npm run sources --silent && node scripts/build-theme.mjs && node scripts/copy-css.mjs",
+    "test": "npm run sources && node --test tests/*.test.mjs",
+    "test:watch": "npm run sources && node --test --watch tests/*.test.mjs",
+    "check-types": "npm run sources && tsc",
+    "verify": "npm run check-types && npm test",
+    "pre-push": "npm run verify",
+    "build:theme": "npm run sources && node scripts/build-theme.mjs && shx rm -f KonekoTheme.zip && bestzip KonekoTheme.zip theme.css manifest.json README.md logo.png",
+    "build:plugin": "npm run sources && npx remnote-plugin validate && shx rm -rf dist && shx rm -f KonekoPlugin.zip && cross-env NODE_ENV=production webpack --color && shx cp README.md dist && cd dist && bestzip ../KonekoPlugin.zip ./*",
+    "build": "npm run build:theme && npm run build:plugin"
+  },
+  "dependencies": {
+    "@remnote/plugin-sdk": "^0.0.46",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "bestzip": "^2.2.1",
+    "copy-webpack-plugin": "^14.0.0",
+    "cross-env": "^7.0.3",
+    "esbuild-loader": "^4.3.0",
+    "glob": "^11.0.3",
+    "html-webpack-plugin": "^5.6.3",
+    "shx": "^0.3.4",
+    "typescript": "^5.6.3",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^7.2.2",
+    "webpack-dev-server": "^6.0.0"
+  }
+}

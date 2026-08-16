@@ -1,0 +1,20 @@
+{
+  "manifestVersion": 1,
+  "id": "koneko-static",
+  "name": "Koneko (Samecat)",
+  "author": "mdeguzis",
+  "description": "Shark hood blue over cream. The default. Costumed cats rest in the corners, behind a translucent interface.",
+  "repoUrl": "https://github.com/mdeguzis/remnote-koneko-theme",
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "patch": 0
+  },
+  "theme": [
+    "light",
+    "dark"
+  ],
+  "enableOnMobile": true,
+  "requestNative": false,
+  "requiredScopes": []
+}

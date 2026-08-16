@@ -1,0 +1,20 @@
+{
+  "manifestVersion": 1,
+  "id": "koneko-theme",
+  "name": "Koneko",
+  "author": "mdeguzis",
+  "description": "Soft pastel cat theme. Costumed kittens rest in the corners, an optional yarn chase crosses the bottom, and four shades each carry their own light and dark mode.",
+  "repoUrl": "https://github.com/mdeguzis/remnote-koneko-theme",
+  "projectUrl": "https://github.com/mdeguzis/remnote-koneko-theme",
+  "supportUrl": "https://github.com/mdeguzis/remnote-koneko-theme/issues",
+  "version": { "major": 0, "minor": 1, "patch": 0 },
+  "theme": ["light", "dark"],
+  "enableOnMobile": true,
+  "requestNative": false,
+  "requiredScopes": [
+    {
+      "type": "All",
+      "level": "Read"
+    }
+  ]
+}

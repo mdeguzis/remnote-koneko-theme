@@ -1,0 +1,245 @@
+/*
+ * Surfaces.
+ *
+ * RemNote exposes its design tokens BOTH as utility classes and as custom
+ * properties on the root. The properties are what matter: overriding them
+ * themes everything that resolves through them, including internal elements
+ * like .EditorContainer that carry no documented class. The Sakura theme was
+ * built out of class overrides first and spent a long day chasing surfaces that
+ * kept escaping, because the documentation only shows the classes.
+ *
+ * Surfaces are drawn at partial alpha so the cats read behind them. The alphas
+ * are not arbitrary:
+ *
+ *   page level surfaces   0.62 - 0.78   the artwork reads clearly through these
+ *   floating surfaces     0.94 - 0.97   menus and dialogs must stay legible
+ *   text                  fully opaque  never traded away for the effect
+ */
+
+:root {
+  --rn-clr-background-primary: rgba(var(--kone-bg-top), 0.62);
+  --rn-clr-background-secondary: rgba(var(--kone-surface), 0.7);
+  --rn-clr-background-tertiary: rgba(var(--kone-surface), 0.78);
+
+  --rn-clr-background-elevation-5: rgba(var(--kone-elevated), 0.94);
+  --rn-clr-background-elevation-10: rgba(var(--kone-elevated), 0.94);
+  --rn-clr-background-elevation-15: rgba(var(--kone-elevated), 0.94);
+  --rn-clr-background-elevation-20: rgba(var(--kone-elevated), 0.94);
+  --rn-clr-background-elevation-30: rgba(var(--kone-elevated), 0.95);
+  --rn-clr-background-elevation-40: rgba(var(--kone-elevated), 0.95);
+  --rn-clr-background-elevation-50: rgba(var(--kone-elevated), 0.96);
+  --rn-clr-background-elevation-60: rgba(var(--kone-elevated), 0.96);
+  --rn-clr-background-elevation-70: rgba(var(--kone-elevated), 0.96);
+  --rn-clr-background-elevation-80: rgba(var(--kone-elevated), 0.97);
+  --rn-clr-background-elevation-90: rgba(var(--kone-elevated), 0.97);
+  --rn-clr-background-elevation-100: rgba(var(--kone-elevated), 0.97);
+
+  --rn-clr-background-accent: rgb(var(--kone-accent));
+  --rn-clr-background-light-accent: rgba(var(--kone-accent-soft), 0.85);
+  --rn-clr-background--hovered: rgba(var(--kone-accent), 0.1);
+  --rn-clr-background--focused: rgba(var(--kone-accent), 0.16);
+  --rn-clr-background--pressed: rgba(var(--kone-accent), 0.2);
+  --rn-clr-background-primary--hovered: rgba(var(--kone-accent), 0.08);
+  --rn-clr-background-state-disabled: rgba(var(--kone-surface), 0.6);
+
+  --rn-clr-content-primary: rgb(var(--kone-text));
+  --rn-clr-content-secondary: rgb(var(--kone-text-muted));
+  --rn-clr-content-tertiary: rgb(var(--kone-text-muted));
+  --rn-clr-content-accent: rgb(var(--kone-accent));
+
+  --rn-clr-border-opaque: rgba(var(--kone-border), 0.8);
+  --rn-clr-border-selected: rgb(var(--kone-accent));
+  --rn-clr-border-accent: rgb(var(--kone-accent));
+  --rn-clr-border-light-accent: rgba(var(--kone-accent-soft), 0.9);
+
+  /*
+   * The one that covers the artwork if left alone. RemNote assigns this per
+   * surface and paints code blocks and the editor container with it. Bound to
+   * the panel opacity setting rather than pinned: RemNote's own value hides the
+   * cats completely, and `transparent` removes the panel so content sits
+   * directly on them. Both were shipped in the Sakura theme before this.
+   */
+  --current-background-color: rgba(var(--kone-elevated), var(--kone-panel-opacity));
+}
+
+html {
+  background-color: rgb(var(--kone-bg-bottom));
+  background-image: linear-gradient(170deg, rgb(var(--kone-bg-top)) 0%, rgb(var(--kone-bg-bottom)) 62%);
+  background-attachment: fixed;
+}
+
+/* Page level. Translucent so the cats behind them show through. */
+.rn-clr-background-primary {
+  background-color: rgba(var(--kone-bg-top), 0.62);
+}
+.rn-clr-background-secondary {
+  background-color: rgba(var(--kone-surface), 0.7);
+}
+.rn-clr-background-tertiary {
+  background-color: rgba(var(--kone-surface), 0.78);
+}
+
+/* Floating. Legibility beats the effect here. */
+.rn-clr-background-elevation-5,
+.rn-clr-background-elevation-10,
+.rn-clr-background-elevation-15,
+.rn-clr-background-elevation-20,
+.rn-clr-background-elevation-30 {
+  background-color: rgba(var(--kone-elevated), 0.94);
+  backdrop-filter: blur(10px) saturate(120%);
+}
+
+/* Text stays fully opaque at every level. */
+.rn-clr-content-primary {
+  color: rgb(var(--kone-text));
+}
+.rn-clr-content-secondary,
+.rn-clr-content-tertiary {
+  color: rgb(var(--kone-text-muted));
+}
+.rn-clr-content-accent {
+  color: rgb(var(--kone-accent));
+}
+
+/*
+ * Panes and the editor container.
+ *
+ * These carry their own backgrounds and none of them are in the documented
+ * token list. Left alone they paint over the page and the artwork behind it.
+ * They are structure, not surface, so the page runs underneath them.
+ *
+ * The editor container is deliberately NOT forced transparent here: it reads
+ * --current-background-color, and overriding it would cancel the panel opacity
+ * setting on that surface.
+ */
+.rn-pane,
+.rn-pane__body,
+.rn-multiple-window-pane,
+.rn-content-and-right-sidebar,
+.rn-editor,
+.rn-document,
+.rn-document-wrapper {
+  background-color: transparent;
+}
+
+.rn-sidebar,
+.rn-document-sidebar,
+.rn-left-sidebar {
+  background-color: rgba(var(--kone-surface), 0.78);
+  backdrop-filter: blur(6px);
+}
+
+/*
+ * Only the sidebar shell paints. RemNote nests containers inside it that each
+ * carry their own background, and alpha compounds: three translucent layers
+ * come out near opaque, hiding whatever is behind the sidebar.
+ */
+.rn-sidebar .rn-clr-background-primary,
+.rn-sidebar .rn-clr-background-secondary,
+.rn-left-sidebar .rn-clr-background-primary,
+.rn-left-sidebar .rn-clr-background-secondary {
+  background-color: transparent;
+}
+
+/* The selected row has no stable class, so this tints the utility it uses. */
+.rn-sidebar .rn-clr-background-elevation-5,
+.rn-sidebar .rn-clr-background-elevation-10,
+.rn-sidebar [aria-selected='true'] {
+  background-color: rgba(var(--kone-accent), 0.24);
+  backdrop-filter: none;
+}
+
+.rn-doc-title {
+  color: rgb(var(--kone-text));
+  letter-spacing: -0.015em;
+}
+
+.rn-editor-divider,
+.rn-divider {
+  background-color: rgba(var(--kone-border), 0.7);
+}
+
+.rn-dialog,
+.rn-doc-menu,
+.rn-omnibar,
+.rn-settings,
+.rn-floating-toolbar {
+  background-color: rgba(var(--kone-elevated), 0.96);
+  backdrop-filter: blur(14px) saturate(125%);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(var(--kone-text), 0.14);
+}
+
+.rn-card,
+.rn-document-preview {
+  background-color: rgba(var(--kone-elevated), 0.9);
+  border-radius: 14px;
+}
+
+/* Code blocks. The fill comes from --current-background-color above; this only
+ * adds the edge, which the fill stops providing at a low opacity. */
+.rn-code-node,
+.rn-editor pre {
+  backdrop-filter: var(--kone-panel-blur);
+  border-radius: 12px;
+  border: 1px solid rgba(var(--kone-border), 0.5);
+}
+
+.rn-editor :not(pre) > code {
+  background-color: rgba(var(--kone-accent-soft), 0.6);
+  border-radius: 5px;
+}
+
+.rn-button {
+  border-radius: 12px;
+}
+.rn-checkbox {
+  border-radius: 6px;
+}
+
+::selection {
+  background-color: rgba(var(--kone-accent), 0.26);
+}
+
+.rn-tag-container {
+  background-color: rgba(var(--kone-accent-soft), 0.7);
+  border-radius: 999px;
+}
+
+/*
+ * Scrollbars, in a muted grey rather than the accent.
+ *
+ * Tinting the resting bar with a saturated accent draws a coloured stripe down
+ * the edge of every scrollable region, which reads as a rendering fault rather
+ * than a scrollbar. The accent is kept for hover, where a deliberate pointer
+ * makes the colour a response.
+ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--kone-text-muted), 0.3);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--kone-accent), 0.45);
+  background-clip: content-box;
+}
+
+/*
+ * Note the descendant combinator. `.rn-code-node::-webkit-scrollbar-thumb`
+ * styles the scrollbar OF that element, but the thing that scrolls is
+ * CodeMirror's .cm-scroller inside it, so the rule would match nothing.
+ */
+.rn-code-node ::-webkit-scrollbar-thumb,
+.cm-scroller::-webkit-scrollbar-thumb,
+.cm-editor ::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--kone-text-muted), 0.22);
+  background-clip: content-box;
+}

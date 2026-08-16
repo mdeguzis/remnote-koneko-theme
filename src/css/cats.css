@@ -1,0 +1,63 @@
+/*
+ * The corner cats.
+ *
+ * Background images rather than CSS masks, which is the opposite of how the
+ * Sakura branches were done. A mask layer carries exactly one colour, and these
+ * cats need fur, tabby, eyes, pink and a costume colour at once. They can be
+ * full colour because compose substitutes the active palette into the SVG
+ * before encoding it, so they still follow the shade.
+ *
+ * SLOTS, NOT COSTUMES
+ * -------------------
+ * Every layer here is a SLOT with a fixed place and size. Which cat lands in a
+ * slot is decided by compose. The first version named the layers after costumes
+ * and gave each costume its own corner, so choosing a different hood moved the
+ * artwork to a different part of the screen and three of the four corners were
+ * always empty. Placement and casting are separate concerns and the stylesheet
+ * only owns placement.
+ *
+ * The two bottom-right slots overlap deliberately: a pair leaning together
+ * reads as a group, where evenly spaced singles read as clip art.
+ *
+ * All four share one pseudo-element through a multi-value background, because
+ * only four exist across html and body and the chase needs two of them.
+ *
+ * Fixed, pointer-events: none, and behind the content, so nothing here can
+ * intercept a click or scroll away with the page.
+ */
+
+html::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--kone-cat-opacity);
+  transition: opacity 400ms ease;
+
+  background-repeat: no-repeat;
+
+  /* Painted front to back: the companion sits in front of the hero. */
+  background-image: var(--kone-slot-companion), var(--kone-slot-hero), var(--kone-slot-left),
+    var(--kone-slot-top);
+  background-position: right 14vw bottom 0.5vh, right 1vw bottom 1vh, left 2vw bottom 2vh,
+    right 4vw top 3vh;
+  background-size: 10vw auto, 15vw auto, 12vw auto, 9vw auto;
+}
+
+/*
+ * Narrow windows keep the featured pair and drop the rest. Four cats on a half
+ * width window crowds the text instead of framing it.
+ */
+@media (max-width: 900px) {
+  html::before {
+    background-size: 0 0, 22vw auto, 17vw auto, 0 0;
+  }
+}
+
+/* On a phone the decoration is not worth the compositing. */
+@media (max-width: 560px) {
+  html::before {
+    display: none;
+  }
+}
